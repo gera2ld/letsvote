@@ -1,17 +1,12 @@
-<!doctype html>
-<html>
-<head>
-  <title>Let's Vote</title>
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-  <h1>{{ vote.title }}</h1>
-  <p class="vote-desc">{{ vote.desc }}</p>
-  {% if vote.vtype == 1 %}
-  {% include 'single.html' %}
-  {% endif %}
-  {% if message %}
-  <p class="vote-message">{{ message }}<p>
-  {% endif %}
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ vote.title }}</h1>
+<p class="vote-desc">{{ vote.desc }}</p>
+{% if vote.vtype == 1 %}
+{% include 'single.html' %}
+{% endif %}
+{% if message %}
+<p class="vote-message">{{ message }}<p>
+{% endif %}
+{% endblock %}

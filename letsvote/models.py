@@ -30,7 +30,7 @@ class Vote:
 
     def set_options(self, options):
         self.options = list(options)
-        self.option_map = dict(map(lambda option: (str(option.oid), option), self.options))
+        self.option_map = dict([(str(option.oid), option) for option in self.options])
 
     @staticmethod
     def load(vid, user_id = None):
@@ -52,6 +52,17 @@ class Vote:
                 vote.readonly = True
         return vote
 
+    @staticmethod
+    def create(user_id, data, options):
+        cur = cursor()
+        cur.execute('INSERT INTO vote_meta (title,desc,created_by,vtype) VALUES (?,?,?,?)',
+                (data['title'], data['desc'], data['user_id'], 1))
+        data['vtype'] = 1
+        data['id'] = cur.lastrowid
+        vote = Vote(data)
+        cur.executemany('INSERT INTO vote_options (vote_id,title) VALUES (?,?)',
+                [(vote.id, option['title']) for option in options])
+
     def vote(self, oids):
         cur = cursor()
         try:
@@ -60,9 +71,9 @@ class Vote:
         except sqlite3.IntegrityError:
             raise AlreadyVoted
         cur.executemany('INSERT INTO vote_data (vote_user_id,option_id) VALUES (?,?)',
-                map(lambda oid: (vote_user_id, oid), oids))
+                [(vote_user_id, oid) for oid in oids])
         cur.executemany('UPDATE vote_options SET total=total+1 WHERE id=?',
-                map(lambda oid: (oid,), oids))
+                [(oid,) for oid in oids])
         commit()
         for oid in oids:
             option = self.get_option(oid)

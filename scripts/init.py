@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS vote_meta (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title VARCHAR,
     desc VARCHAR,
+    created_by VARCHAR,
     vtype INTEGER DEFAULT 1
 );
 CREATE TABLE IF NOT EXISTS vote_options (

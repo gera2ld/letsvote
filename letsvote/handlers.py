@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
+import json
 import aiohttp_jinja2, aiohttp
 from .models import *
 
@@ -24,14 +25,14 @@ def render(template):
     return wrapper
 
 @render('detail.html')
-async def handle_get(request):
+async def handle_get_detail(request):
     vote = get_vote(request)
     return {
         'vote': vote
     }
 
 @render('detail.html')
-async def handle_post(request):
+async def handle_post_detail(request):
     vote = get_vote(request)
     data = await request.post()
     oids = data.getall('voteGroup')
@@ -43,3 +44,19 @@ async def handle_post(request):
     except AlreadyVoted:
         data['message'] = 'You have already voted!'
     return data
+
+@render('create.html')
+async def handle_get_create(request):
+    return {
+        'user_id': user_id(request)
+    }
+
+@render('create.html')
+async def handle_post_create(request):
+    data = await request.post()
+    return {
+        'title': data['title'],
+        'desc': data['desc'],
+        'json_options': json.dumps(data.getall('option')),
+    }
+    raise aiohttp.web.HTTPFound()

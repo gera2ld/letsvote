@@ -17,6 +17,18 @@ h1 {
   margin: 1rem 0;
 }
 
+textarea {
+  width: 300px;
+}
+
+label > textarea {
+  display: block;
+}
+
+li > textarea {
+  vertical-align: top;
+}
+
 .vote-desc {
   margin: 1rem 0 2rem;
 }
