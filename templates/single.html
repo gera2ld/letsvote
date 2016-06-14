@@ -1,0 +1,21 @@
+<form method="post">
+  <div class="vote-options">
+    {% for option in vote.options %}
+    <div class="vote-option">
+      <input type=radio name="voteGroup" value="{{ option.oid | e }}"
+      {{ ' checked' if option.checked else '' }}
+      {{ ' disabled' if vote.readonly else '' }}
+      >
+      {{ option.title }}
+      {% if vote.readonly %}
+      <span class="vote-total">{{ option.total }}</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% if not vote.readonly %}
+  <div class="vote-buttons">
+    <input type=submit value="Sumbit">
+  </div>
+  {% endif %}
+</form>
