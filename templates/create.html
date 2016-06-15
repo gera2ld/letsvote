@@ -32,18 +32,18 @@
   const ul = $('#vote-options');
   const btnAdd = $('[data-id=vote-option-add]');
   const msg = $('.vote-message');
-  btnAdd.addEventListener('click', e => {
+  btnAdd.addEventListener('click', function (e) {
     addItem();
   }, false);
-  ul.addEventListener('click', e => {
+  ul.addEventListener('click', function (e) {
     const target = e.target;
     if (target.dataset.id === 'vote-option-remove') {
       const li = target.parentNode;
       li.remove();
     }
   }, false);
-  $('#vote-create').addEventListener('submit', e => {
-    if (![].slice.call(ul.children).filter(li => {
+  $('#vote-create').addEventListener('submit', function (e) {
+    if (![].slice.call(ul.children).filter(function (li) {
       const textarea = li.querySelector('textarea');
       const value = textarea.value.trim();
       if (value) return true;
@@ -55,6 +55,6 @@
   }, false);
   if (options) options.forEach(addItem);
   else addItem();
-}(selector => document.querySelector(selector), {{ json_options or 'null' }});
+}(function (selector) {return document.querySelector(selector);}, {{ json_options or 'null' }});
 </script>
 {% endblock %}
