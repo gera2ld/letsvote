@@ -17,6 +17,11 @@ h1 {
   margin: 1rem 0;
 }
 
+footer {
+  margin-top: 2rem;
+  color: #999;
+}
+
 textarea {
   width: 300px;
 }
