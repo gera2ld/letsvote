@@ -13,6 +13,13 @@ class Option:
         self.title = data['title']
         self.total = data['total']
 
+    def to_json(self):
+        return {
+            'id': self.oid,
+            'title': self.title,
+            'total': self.total,
+        }
+
 class Vote:
     readonly = False
     uid = None
@@ -31,6 +38,15 @@ class Vote:
     def set_options(self, options):
         self.options = list(options)
         self.option_map = dict([(str(option.oid), option) for option in self.options])
+
+    def to_json(self):
+        return {
+            'id': self.vid,
+            'title': self.title,
+            'desc': self.desc,
+            'type': self.vtype,
+            'options': [option.to_json() for option in self.options],
+        }
 
     @staticmethod
     def load(vid, user_id = None):

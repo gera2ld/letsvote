@@ -3,15 +3,10 @@
 import json
 import aiohttp_jinja2, aiohttp
 from .models import *
+from .utils import *
 
-def user_id(request):
-    peer = request.transport.get_extra_info('peername')
-    ip, port = peer[:2]
-    return ip
-
-def get_vote(request):
-    vid = request.match_info['vid']
-    vote = Vote.load(vid, user_id(request))
+def safe_get_vote(request):
+    vote = get_vote(request)
     if vote is None:
         raise aiohttp.web.HTTPFound('/')
     return vote
@@ -26,14 +21,14 @@ def render(template):
 
 @render('detail.html')
 async def handle_get_detail(request):
-    vote = get_vote(request)
+    vote = safe_get_vote(request)
     return {
         'vote': vote
     }
 
 @render('detail.html')
 async def handle_post_detail(request):
-    vote = get_vote(request)
+    vote = safe_get_vote(request)
     data = await request.post()
     oids = data.getall('voteGroup')
     data = {
