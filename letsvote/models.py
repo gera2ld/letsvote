@@ -53,7 +53,7 @@ class Vote:
         return vote
 
     @staticmethod
-    def create(user_id, data, options):
+    def create(data):
         cur = cursor()
         cur.execute('INSERT INTO vote_meta (title,desc,created_by,vtype) VALUES (?,?,?,?)',
                 (data['title'], data['desc'], data['user_id'], 1))
@@ -61,7 +61,8 @@ class Vote:
         data['id'] = cur.lastrowid
         vote = Vote(data)
         cur.executemany('INSERT INTO vote_options (vote_id,title) VALUES (?,?)',
-                [(vote.id, option['title']) for option in options])
+                [(vote.vid, option) for option in data['options']])
+        return vote
 
     def vote(self, oids):
         cur = cursor()

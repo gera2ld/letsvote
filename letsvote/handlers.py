@@ -53,10 +53,19 @@ async def handle_get_create(request):
 
 @render('create.html')
 async def handle_post_create(request):
-    data = await request.post()
-    return {
-        'title': data['title'],
-        'desc': data['desc'],
-        'json_options': json.dumps(data.getall('option')),
+    payload = await request.post()
+    data = {
+        'user_id': user_id(request),
+        'title': payload['title'],
+        'desc': payload['desc'],
+        'options': payload.getall('option'),
     }
-    raise aiohttp.web.HTTPFound()
+    try:
+        vote = Vote.create(data)
+    except:
+        import traceback
+        traceback.print_exc()
+        data['json_options'] = json.dumps(data['options'])
+        return data
+    else:
+        raise aiohttp.web.HTTPFound('/' + str(vote.vid))
