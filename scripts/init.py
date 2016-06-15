@@ -51,4 +51,4 @@ def mock():
         cur.execute('INSERT INTO vote_options (vote_id, title) VALUES (?, ?)', (mid, title))
     db.commit()
 
-mock()
+#mock()
