@@ -3,8 +3,10 @@
 from .models import Vote
 
 def user_id(request):
-    peer = request.transport.get_extra_info('peername')
-    ip, port = peer[:2]
+    ip = request.headers.get('x-real-ip')
+    if ip is None:
+        peer = request.transport.get_extra_info('peername')
+        ip, port = peer[:2]
     return ip
 
 def get_vote(request):

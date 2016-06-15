@@ -78,6 +78,7 @@ class Vote:
         vote = Vote(data)
         cur.executemany('INSERT INTO vote_options (vote_id,title) VALUES (?,?)',
                 [(vote.vid, option) for option in data['options']])
+        commit()
         return vote
 
     def vote(self, oids):

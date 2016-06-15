@@ -10,6 +10,7 @@ def setup(app):
     aiohttp_jinja2.setup(app,
         # extensions=['jinja2htmlcompress.HTMLCompress'],
         loader=jinja2.FileSystemLoader(os.path.join(ROOT, 'templates')))
+    app.on_response_prepare.append(apis.on_prepare)
     app.router.add_route('POST', '/api/votes', apis.handle_post_create)
     app.router.add_route('GET', '/api/votes/{vid}', apis.handle_get_detail)
     app.router.add_route('POST', '/api/votes/{vid}', apis.handle_post_detail)
