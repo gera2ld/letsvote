@@ -3,7 +3,7 @@
 import json
 import aiohttp
 from .models import *
-from .utils import get_vote
+from .utils import *
 
 class HTTPUnprocessableEntity(aiohttp.web.HTTPClientError):
     status_code = 421
