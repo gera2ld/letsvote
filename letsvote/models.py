@@ -51,17 +51,17 @@ class Vote:
     @staticmethod
     def load(vid, user_id = None):
         cur = cursor()
-        cur.execute('SELECT * FROM vote_meta WHERE id=?', (vid,))
+        cur.execute('SELECT * FROM voting_meta WHERE id=?', (vid,))
         data = cur.fetchone()
         if data is None: return
         data['user_id'] = user_id
         vote = Vote(data)
-        cur.execute('SELECT * FROM vote_options WHERE vote_id=?', (vid,))
+        cur.execute('SELECT * FROM voting_options WHERE voting_id=?', (vid,))
         vote.set_options(map(Option, cur))
         if user_id is not None:
-            cur.execute('SELECT option_id FROM vote_user INNER JOIN vote_data '
-                    'ON vote_user.id=vote_data.vote_user_id '
-                    'WHERE vote_id=? AND user_id=?', (vid, user_id))
+            cur.execute('SELECT option_id FROM vote_meta INNER JOIN vote_data '
+                    'ON vote_meta.id=vote_data.vote_id '
+                    'WHERE voting_id=? AND user_id=?', (vid, user_id))
             for item in cur:
                 option = vote.get_option(item['option_id'])
                 option.checked = True
@@ -71,12 +71,12 @@ class Vote:
     @staticmethod
     def create(data):
         cur = cursor()
-        cur.execute('INSERT INTO vote_meta (title,desc,created_by,vtype) VALUES (?,?,?,?)',
+        cur.execute('INSERT INTO voting_meta (title,desc,created_by,vtype) VALUES (?,?,?,?)',
                 (data['title'], data['desc'], data['user_id'], 1))
         data['vtype'] = 1
         data['id'] = cur.lastrowid
         vote = Vote(data)
-        cur.executemany('INSERT INTO vote_options (vote_id,title) VALUES (?,?)',
+        cur.executemany('INSERT INTO voting_options (voting_id,title) VALUES (?,?)',
                 [(vote.vid, option) for option in data['options']])
         commit()
         return vote
@@ -84,13 +84,13 @@ class Vote:
     def vote(self, oids):
         cur = cursor()
         try:
-            cur.execute('INSERT INTO vote_user (vote_id,user_id) VALUES (?,?)', (self.vid, self.uid))
-            vote_user_id = cur.lastrowid
+            cur.execute('INSERT INTO vote_meta (voting_id,user_id) VALUES (?,?)', (self.vid, self.uid))
+            vote_id = cur.lastrowid
         except sqlite3.IntegrityError:
             raise AlreadyVoted
-        cur.executemany('INSERT INTO vote_data (vote_user_id,option_id) VALUES (?,?)',
-                [(vote_user_id, oid) for oid in oids])
-        cur.executemany('UPDATE vote_options SET total=total+1 WHERE id=?',
+        cur.executemany('INSERT INTO vote_data (vote_id,option_id) VALUES (?,?)',
+                [(vote_id, oid) for oid in oids])
+        cur.executemany('UPDATE voting_options SET total=total+1 WHERE id=?',
                 [(oid,) for oid in oids])
         commit()
         for oid in oids:
