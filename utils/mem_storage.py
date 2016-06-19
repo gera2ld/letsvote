@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
-import uuid
+import uuid, time, pickle
 from aiohttp_session import AbstractStorage, Session
 
 class MemoryStorage(AbstractStorage):
@@ -30,3 +30,41 @@ class MemoryStorage(AbstractStorage):
             key = str(key)
         self.save_cookie(response, key, max_age=session.max_age)
         self.data[key] = self._get_session_data(session)
+
+class MockRedis:
+    def __init__(self, data):
+        self.data = data
+
+    async def get(self, key):
+        item = self.data.get(key)
+        if item is not None:
+            if item['expire'] < time.time():
+                self.data.pop(key)
+                item = None
+        if item is not None:
+            return pickle.loads(item['value'])
+
+    async def set(self, key, val, expire=None):
+        if expire is None:
+            expire = time.time() + 60
+        self.data[key] = {
+            'value': pickle.dumps(val),
+            'expire': expire,
+        }
+
+class MockRedisPool:
+    def __init__(self):
+        self.data = {}
+        self.redis = MockRedis(self.data)
+
+    def __enter__(self):
+        return self.redis
+
+    def __exit__(self, *k):
+        pass
+
+    def __iter__(self):
+        if False: yield self    # make an generator
+        return self
+
+    __await__ = __iter__ # make compatible with 'await' expression

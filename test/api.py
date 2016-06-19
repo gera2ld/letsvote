@@ -2,10 +2,10 @@
 # coding=utf-8
 import aiohttp
 
-prefix = 'http://localhost:4010/api'
+prefix = 'http://localhost:3002/api'
 
 async def test_post_create(session):
-    async with session.post(prefix + '/votings', data = {
+    async with session.post(prefix + '/polls', data = {
         'title': 'test_title_1',
         'desc': 'test_desc_1',
         'option': [
@@ -19,7 +19,7 @@ async def test_post_create(session):
         return data
 
 async def test_get_detail(session, voting):
-    async with session.get(prefix + '/votings/' + str(voting['id'])) as res:
+    async with session.get(prefix + '/polls/' + str(voting['id'])) as res:
         data = await res.json()
         print(data)
         return data
@@ -28,7 +28,7 @@ async def test_post_detail(session, voting):
     votes = {
         'voteGroup': [voting['options'][0]['id']],
     }
-    async with session.post(prefix + '/votings/' + str(voting['id']), data=votes) as res:
+    async with session.post(prefix + '/polls/' + str(voting['id']), data=votes) as res:
         data = await res.json()
         print(data)
         return data

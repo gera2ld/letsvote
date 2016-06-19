@@ -4,6 +4,7 @@ import json
 import aiohttp_jinja2, aiohttp
 from aiohttp_session import get_session
 from .models import *
+from . import callbacks
 
 async def get_user(request):
     session = await get_session(request)
@@ -11,7 +12,7 @@ async def get_user(request):
     user_name = session.get('user_name')
     return user_id, user_name
 
-async def safe_get_poll(vid, user_id):
+def safe_get_poll(vid, user_id):
     poll = Poll.load(vid, user_id)
     if poll is None:
         raise aiohttp.web.HTTPFound('/')
@@ -29,7 +30,7 @@ def render(template):
 @render('detail.html')
 async def handle_get_detail(request):
     user_id, user_name = await get_user(request)
-    poll = await safe_get_poll(request.match_info['vid'], user_id)
+    poll = safe_get_poll(request.match_info['vid'], user_id)
     return {
         'poll': poll,
         'user_name': user_name,
@@ -38,7 +39,7 @@ async def handle_get_detail(request):
 @render('detail.html')
 async def handle_post_detail(request):
     user_id, user_name = await get_user(request)
-    poll = await safe_get_poll(request.match_info['vid'], user_id)
+    poll = safe_get_poll(request.match_info['vid'], user_id)
     data = await request.post()
     oids = data.getall('voteGroup')
     data = {
@@ -77,3 +78,10 @@ async def handle_post_create(request):
         return data
     else:
         raise aiohttp.web.HTTPFound('/polls/' + str(poll.vid))
+
+async def handle_callback(request):
+    try:
+        await callbacks.handle(request)
+    except:
+        pass
+    raise aiohttp.web.HTTPFound('/')

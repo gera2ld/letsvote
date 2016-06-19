@@ -19,11 +19,22 @@ def on_prepare(request, response):
     # else:
     #     response.headers['Access-Control-Allow-Origin'] = '*'
 
-def safe_get_vote(request):
-    vote = get_vote(request)
-    if vote is None:
+async def get_user(request):
+    user = None
+    token = request.GET.get('token')
+    if token is None:
+        token = request.headers.get('Authorization')
+    if token is not None:
+        with await request.app.config.redis_pool as redis:
+            user = await redis.get('user_token:' + str(token))
+    if user is None: user = {}
+    return user.get('user_id'), user.get('user_name')
+
+def safe_get_poll(vid, user_id):
+    poll = Poll.load(vid, user_id)
+    if poll is None:
         api_not_found()
-    return vote
+    return poll
 
 def dumps(data):
     return json.dumps(data, separators = (',', ':'), ensure_ascii = False)
@@ -50,34 +61,37 @@ def api_not_found(msg=None):
 
 @api
 async def handle_get_detail(request):
-    vote = safe_get_vote(request)
-    return vote.to_json()
+    user_id, user_name = await get_user(request)
+    poll = safe_get_poll(request.match_info['vid'], user_id)
+    return poll.to_json()
 
 @api
 async def handle_post_detail(request):
-    vote = safe_get_vote(request)
+    user_id, _ = await get_user(request)
+    poll = safe_get_poll(request.match_info['vid'], user_id)
     data = await request.post()
     oids = data.getall('voteGroup')
     try:
-        vote.vote(oids)
+        poll.vote(oids)
     except AlreadyVoted:
         api_error('Already voted!', error_class=HTTPUnprocessableEntity)
-    return vote.to_json()
+    return poll.to_json()
 
 @api
 async def handle_post_create(request):
+    user_id, _ = await get_user(request)
     payload = await request.post()
     data = {
-        'user_id': user_id(request),
+        'user_id': user_id,
         'title': payload['title'],
         'desc': payload['desc'],
         'options': payload.getall('option'),
     }
     try:
-        vote = Vote.create(data)
+        poll = Poll.create(data)
     except:
         import traceback
         traceback.print_exc()
         api_error('Invalid data!', error_class=HTTPUnprocessableEntity)
     else:
-        return vote.to_json()
+        return poll.to_json()

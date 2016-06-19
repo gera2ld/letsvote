@@ -5,6 +5,8 @@ import aiohttp
 from aiohttp_session import get_session
 from .models import User
 
+class BadRequest(Exception): pass
+
 handlers = {}
 def callback(source):
     def wrapper(handler):
@@ -24,14 +26,13 @@ async def handle(request):
     handler = handlers.get(source)
     if handler is not None:
         await handler(request)
-    raise aiohttp.web.HTTPFound('/')
 
 @callback('github')
 async def handle_github(request):
     code = request.GET.get('code')
     # state = request.GET.get('state')
     if not code:
-        raise aiohttp.web.HTTPBadRequest
+        raise BadRequest
     with aiohttp.ClientSession() as session:
         login = request.app.config.login.get('github')
         data = {
