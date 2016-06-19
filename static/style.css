@@ -22,6 +22,10 @@ footer {
   color: #999;
 }
 
+.user {
+  margin: 2rem 0;
+}
+
 textarea {
   width: 100%;
   max-width: 300px;

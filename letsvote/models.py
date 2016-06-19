@@ -20,9 +20,9 @@ class Option:
             'total': self.total,
         }
 
-class Vote:
-    readonly = False
+class Poll:
     uid = None
+    voted = False
 
     def __init__(self, data):
         self.vid = data['id']
@@ -51,50 +51,97 @@ class Vote:
     @staticmethod
     def load(vid, user_id = None):
         cur = cursor()
-        cur.execute('SELECT * FROM voting_meta WHERE id=?', (vid,))
+        cur.execute('SELECT * FROM poll_meta WHERE id=?', (vid,))
         data = cur.fetchone()
         if data is None: return
         data['user_id'] = user_id
-        vote = Vote(data)
-        cur.execute('SELECT * FROM voting_options WHERE voting_id=?', (vid,))
-        vote.set_options(map(Option, cur))
+        poll = Poll(data)
+        cur.execute('SELECT * FROM poll_option WHERE poll_id=?', (vid,))
+        poll.set_options(map(Option, cur))
         if user_id is not None:
             cur.execute('SELECT option_id FROM vote_meta INNER JOIN vote_data '
                     'ON vote_meta.id=vote_data.vote_id '
-                    'WHERE voting_id=? AND user_id=?', (vid, user_id))
+                    'WHERE poll_id=? AND user_id=?', (vid, user_id))
             for item in cur:
-                option = vote.get_option(item['option_id'])
+                option = poll.get_option(item['option_id'])
                 option.checked = True
-                vote.readonly = True
-        return vote
+                poll.voted = True
+        return poll
 
     @staticmethod
     def create(data):
         cur = cursor()
-        cur.execute('INSERT INTO voting_meta (title,desc,created_by,vtype) VALUES (?,?,?,?)',
+        cur.execute('INSERT INTO poll_meta (title,desc,created_by,vtype) VALUES (?,?,?,?)',
                 (data['title'], data['desc'], data['user_id'], 1))
         data['vtype'] = 1
         data['id'] = cur.lastrowid
-        vote = Vote(data)
-        cur.executemany('INSERT INTO voting_options (voting_id,title) VALUES (?,?)',
-                [(vote.vid, option) for option in data['options']])
+        poll = Poll(data)
+        cur.executemany('INSERT INTO poll_option (poll_id,title) VALUES (?,?)',
+                [(poll.vid, option) for option in data['options']])
         commit()
-        return vote
+        return poll
 
     def vote(self, oids):
         cur = cursor()
         try:
-            cur.execute('INSERT INTO vote_meta (voting_id,user_id) VALUES (?,?)', (self.vid, self.uid))
+            cur.execute('INSERT INTO vote_meta (poll_id,user_id) VALUES (?,?)', (self.vid, self.uid))
             vote_id = cur.lastrowid
         except sqlite3.IntegrityError:
             raise AlreadyVoted
         cur.executemany('INSERT INTO vote_data (vote_id,option_id) VALUES (?,?)',
                 [(vote_id, oid) for oid in oids])
-        cur.executemany('UPDATE voting_options SET total=total+1 WHERE id=?',
+        cur.executemany('UPDATE poll_option SET total=total+1 WHERE id=?',
                 [(oid,) for oid in oids])
         commit()
         for oid in oids:
             option = self.get_option(oid)
             option.total += 1
             option.checked = True
-            self.readonly = True
+            self.voted = True
+
+class User:
+    def __init__(self, data):
+        self.uid = data['id']
+        self.oauth_id = data['oauth_id']
+        self.update_data(data)
+
+    def update_data(self, data):
+        self.name = data['name']
+        self.email = data['email']
+        self.avatar_url = data['avatar_url']
+        self.gravatar_id = data['gravatar_id']
+
+    @staticmethod
+    def create(data):
+        cur = cursor()
+        cur.execute('INSERT INTO user (oauth_id,name,email,avatar_url,gravatar_id,token) VALUES(?,?,?,?,?,?)',
+                (data['oauth_id'], data['name'], data['email'], data['avatar_url'], data['gravatar_id'], data['token']))
+        data['id'] = cur.lastrowid
+        commit()
+        return User(data)
+
+    @staticmethod
+    def load(id=None, oauth_id=None):
+        if id is not None:
+            key = 'id'
+            args = id,
+        elif oauth_id is not None:
+            key = 'oauth_id'
+            args = oauth_id,
+        else:
+            return
+        cur = cursor()
+        cur.execute('SELECT * FROM user WHERE %s=?' % key, args)
+        data = cur.fetchone()
+        if data is not None: return User(data)
+
+    @staticmethod
+    def update(data):
+        user = User.load(oauth_id=data['oauth_id'])
+        if user is None: return User.create(data)
+        cur = cursor()
+        cur.execute('UPDATE user SET name=?,email=?,avatar_url=?,gravatar_id=?,token=? WHERE id=?',
+                (data['name'], data['email'], data['avatar_url'], data['gravatar_id'], data['token'], user.uid))
+        commit()
+        user.update_data(data)
+        return user

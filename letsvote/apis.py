@@ -3,10 +3,9 @@
 import json
 import aiohttp
 from .models import *
-from .utils import *
 
 class HTTPUnprocessableEntity(aiohttp.web.HTTPClientError):
-    status_code = 421
+    status_code = 422
 
 def on_prepare(request, response):
     if not request.path.startswith('/api/'): return

@@ -1,21 +1,21 @@
 <form method="post">
   <div class="vote-options">
-    {% for option in vote.options %}
+    {% for option in poll.options %}
     <div class="vote-option">
       <input type=radio name="voteGroup" value="{{ option.oid | e }}"
       {{ ' checked' if option.checked else '' }}
-      {{ ' disabled' if vote.readonly else '' }}
+      {{ '' if poll.uid and not poll.voted else ' disabled' }}
       >
       {{ option.title }}
-      {% if vote.readonly %}
+      {% if poll.voted %}
       <span class="vote-total">{{ option.total }}</span>
       {% endif %}
     </div>
     {% endfor %}
   </div>
-  {% if not vote.readonly %}
+  {% if poll.uid %}
   <div class="vote-buttons">
-    <input type=submit value="Sumbit">
+    <input type=submit value="Sumbit"{{ ' disabled' if poll.voted else ''}}>
   </div>
   {% endif %}
 </form>

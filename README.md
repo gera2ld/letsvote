@@ -1,7 +1,9 @@
-Let's vote
+Let's Vote
 ===
 
-A simple WSGI application for votes. Requires Python 3.5+.
+![Let's Vote](static/vote_128.png)
+
+A simple WSGI application for polls. Requires Python 3.5+.
 
 Test
 ---
@@ -13,5 +15,5 @@ TODO
 ---
 
 * Account system
-* Latest votings
-* Hottest votings
+* Latest polls
+* Hottest polls
