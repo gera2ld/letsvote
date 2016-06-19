@@ -2,7 +2,6 @@
 # coding=utf-8
 import urllib.parse
 import aiohttp
-from aiohttp_session import get_session
 from .models import User
 
 class BadRequest(Exception): pass

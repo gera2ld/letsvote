@@ -4,6 +4,7 @@ import sqlite3
 from .db import cursor, commit
 
 class AlreadyVoted(Exception): pass
+class InvalidData(Exception): pass
 
 class Option:
     checked = False
@@ -70,6 +71,8 @@ class Poll:
 
     @staticmethod
     def create(data):
+        if len(data['options']) < 2:
+            raise InvalidData('At least 2 options are required!')
         cur = cursor()
         cur.execute('INSERT INTO poll_meta (title,desc,created_by,vtype) VALUES (?,?,?,?)',
                 (data['title'], data['desc'], data['user_id'], 1))

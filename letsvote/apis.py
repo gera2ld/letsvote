@@ -91,9 +91,13 @@ async def handle_post_create(request):
     }
     try:
         poll = Poll.create(data)
+    except InvalidData as e:
+        args = e.args
+        message = args[0] if len(args) > 0 else 'Invalid data!'
+        api_error(message, error_class=HTTPUnprocessableEntity)
     except:
         import traceback
         traceback.print_exc()
-        api_error('Invalid data!', error_class=HTTPUnprocessableEntity)
+        api_error('Unknown error!', error_class=aiohttp.web.HTTPInternalServerError)
     else:
         return poll.to_json()

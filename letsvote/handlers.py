@@ -74,13 +74,18 @@ async def handle_post_create(request):
     }
     try:
         poll = Poll.create(data)
+    except InvalidData as e:
+        args = e.args
+        message = args[0] if len(args) > 0 else 'Invalid data!'
+        data['message'] = message
     except:
         import traceback
         traceback.print_exc()
-        data['json_options'] = json.dumps(data['options'])
-        return data
+        data['message'] = 'Unknown error!'
     else:
         raise aiohttp.web.HTTPFound('/polls/' + str(poll.vid))
+    data['json_options'] = json.dumps(data['options'])
+    return data
 
 async def handle_callback(request):
     try:
