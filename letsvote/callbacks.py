@@ -14,9 +14,7 @@ def callback(source):
             user_data = await handler(request)
             user_data['oauth_id'] = source + ':' + str(user_data['oauth_id'])
             user = User.update(user_data)
-            session = await get_session(request)
-            session['user_id'] = user.uid
-            session['user_name'] = user.name
+            return user
         handlers[source] = handle
         return handle
     return wrapper
@@ -25,7 +23,7 @@ async def handle(request):
     source = request.match_info['source']
     handler = handlers.get(source)
     if handler is not None:
-        await handler(request)
+        return await handler(request)
 
 @callback('github')
 async def handle_github(request):

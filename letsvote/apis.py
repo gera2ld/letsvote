@@ -71,6 +71,8 @@ async def handle_post_detail(request):
     poll = safe_get_poll(request.match_info['vid'], user_id)
     data = await request.post()
     oids = data.getall('voteGroup')
+    if user_id is None:
+        api_error('Please log in first!', error_class=aiohttp.web.HTTPUnauthorized)
     try:
         poll.vote(oids)
     except AlreadyVoted:

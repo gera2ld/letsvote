@@ -46,10 +46,13 @@ async def handle_post_detail(request):
         'poll': poll,
         'user_name': user_name,
     }
-    try:
-        poll.vote(oids)
-    except AlreadyVoted:
-        data['message'] = 'You have already voted!'
+    if user_id is None:
+        data['message'] = 'Please log in first!'
+    else:
+        try:
+            poll.vote(oids)
+        except AlreadyVoted:
+            data['message'] = 'You have already voted!'
     return data
 
 @render('create.html')
@@ -81,7 +84,13 @@ async def handle_post_create(request):
 
 async def handle_callback(request):
     try:
-        await callbacks.handle(request)
+        user = await callbacks.handle(request)
     except:
         pass
+    session = await get_session(request)
+    if user is None:
+        session['user_id'] = session['user_name'] = None
+    else:
+        session['user_id'] = user.uid
+        session['user_name'] = user.name
     raise aiohttp.web.HTTPFound('/')
