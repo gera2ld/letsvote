@@ -91,7 +91,7 @@ async def handle_callback(request):
     try:
         user = await callbacks.handle(request)
     except:
-        pass
+        user = None
     session = await get_session(request)
     if user is None:
         session['user_id'] = session['user_name'] = None
