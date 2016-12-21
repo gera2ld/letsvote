@@ -38,4 +38,5 @@ def detail(request, poll_id):
                 for choice in user_choices
             ])
             user_choices.update(votes=F('votes')+1)
+            Question.objects.filter(id=poll_id).update(user_number=F('user_number')+1)
         return redirect(request.path)
