@@ -21,3 +21,14 @@
 .progress {
   overflow: hidden;
 }
+
+.poll-progress {
+  position: relative;
+}
+
+.poll-choice-votes {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  font-size: 12px;
+}

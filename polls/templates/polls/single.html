@@ -6,11 +6,9 @@
       {{ choice.title }}
     </label>
     {% if voted %}
-    <div class="row">
-      <div class="col-xs">
-        <progress class="progress" value="{{choice.votes}}" max="{{total}}"></progress>
-      </div>
-      <span class="col-xs-1">{{ choice.votes }}</span>
+    <div class="poll-progress">
+      <progress class="progress" value="{{choice.votes}}" max="{{total}}"></progress>
+      <span class="poll-choice-votes">{{choice.votes}}</span>
     </div>
     {% endif %}
   </div>
