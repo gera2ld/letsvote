@@ -1,0 +1,23 @@
+<form method="post">{% csrf_token %}
+  {% for choice in choices %}
+  <div class="form-check">
+    <label class="form-check-label">
+      <input class="form-check-input" type="radio" name="poll_values" required value="{{ choice.id | escape }}"{% if choice in selected %} checked{% endif %}{% if not user or voted %} disabled{% endif %}>
+      {{ choice.title }}
+    </label>
+    {% if voted %}
+    <div class="row">
+      <div class="col-xs">
+        <progress class="progress" value="{{choice.votes}}" max="{{total}}"></progress>
+      </div>
+      <span class="col-xs-1">{{ choice.votes }}</span>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% if user.userinfo and not voted %}
+  <div>
+    <button class="btn btn-primary" type="submit">Submit</button>
+  </div>
+  {% endif %}
+</form>

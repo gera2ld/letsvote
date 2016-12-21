@@ -1,0 +1,10 @@
+{% extends 'polls/base.html' %}
+
+{% block content %}
+<h1 class="mt-2">{{ poll.title }}</h1>
+<p class="lead">{{ poll.desc }}</p>
+{% include 'polls/single.html' %}
+{% if message %}
+<p class="vote-message">{{ message }}<p>
+{% endif %}
+{% endblock %}
