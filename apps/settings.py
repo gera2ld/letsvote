@@ -12,11 +12,12 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
+environ = dict(os.environ)
 try:
     from . import env
     for key in dir(env):
         if not key.startswith('_') and key.upper() == key:
-            os.environ[key] = getattr(env, key)
+            environ[key] = getattr(env, key)
 except ImportError:
     pass
 
@@ -28,10 +29,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('PYTHON_ENV') != 'production'
+DEBUG = environ.get('PYTHON_ENV') != 'production'
 
 ALLOWED_HOSTS = ['*']
 
@@ -128,11 +129,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.environ.get('STATIC_ROOT')
+STATIC_ROOT = environ.get('STATIC_ROOT')
 
 LOGIN = {
-    'GITHUB': {
-        'CLIENT_ID': os.environ['GITHUB_CLIENT_ID'],
-        'CLIENT_SECRET': os.environ['GITHUB_CLIENT_SECRET'],
-    },
+    'GITHUB': environ.get('GITHUB'),
 }
