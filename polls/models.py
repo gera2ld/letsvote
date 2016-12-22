@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 class Question(models.Model):
     title = models.CharField(max_length=200)
-    desc = models.TextField()
+    desc = models.TextField(blank=True)
     created_by = models.ForeignKey(User)
     user_number = models.IntegerField(default=0)
 
