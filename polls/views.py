@@ -24,7 +24,7 @@ def detail(request, poll_id):
             'LOGIN': settings.LOGIN,
             'user': request.user if request.user.is_authenticated() else None,
             'request': request,
-            'redirect_uri': 'http://localhost:8000/account/callback?next=' + request.path,
+            'redirect_uri': request.build_absolute_uri('/account/callback?next=' + request.path),
         })
     elif request.method == 'POST':
         form = PollForm(choices, request.POST)
