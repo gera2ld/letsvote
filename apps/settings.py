@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'apps.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'data/db.sqlite3'),
     }
 }
 
@@ -134,3 +134,5 @@ STATIC_ROOT = environ.get('STATIC_ROOT')
 LOGIN = {
     'GITHUB': environ.get('GITHUB'),
 }
+
+ARBITER_URL = environ['ARBITER_URL']

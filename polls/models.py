@@ -1,14 +1,27 @@
 from django.db import models
-from django.contrib.auth.models import User
+
+def json_transformer(fields):
+    def as_json(model):
+        result = {}
+        for field in fields:
+            result[field] = getattr(model, field)
+        return result
+    return as_json
 
 class Question(models.Model):
     title = models.CharField(max_length=200)
     desc = models.TextField(blank=True)
-    created_by = models.ForeignKey(User)
+    owner_id = models.CharField(max_length=64)
     user_number = models.IntegerField(default=0)
+    votes_lb = models.IntegerField(default=1)
+    votes_ub = models.IntegerField(default=1)
 
     def __str__(self):
         return self.title
+
+    as_json = json_transformer([
+        'title', 'desc', 'user_number',
+    ])
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
@@ -19,9 +32,13 @@ class Choice(models.Model):
     def __str__(self):
         return self.title
 
+    as_json = json_transformer([
+        'title', 'desc', 'votes',
+    ])
+
 class UserQuestion(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    user = models.ForeignKey(User)
+    user_id = models.CharField(max_length=64)
 
     def __str__(self):
         return self.user.userinfo.nickname + '@' + self.question.title

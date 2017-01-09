@@ -1,6 +1,6 @@
 __pycache__
 python
-*.sqlite3
-*.sqlite3-journal
 /apps/env.py
 /static
+/data/*
+!.gitkeep
