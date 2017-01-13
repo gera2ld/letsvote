@@ -2,9 +2,23 @@ from django.shortcuts import get_object_or_404
 from django.db.models import F
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
+import requests
 from .models import Question, Choice, UserChoice
 from .forms import PollForm, ChoiceForm, AnswerForm
 from .utils import require_token
+
+@require_POST
+def authorize(request):
+    ticket = request.POST.get('ticket')
+    if not ticket:
+        return JsonResponse({
+            'errors': {
+                'ticket': 'Invalid ticket',
+            },
+        }, status=400)
+    url = settings.ARBITER_URL + '/api/token'
+    r = requests.post(url, params={'ticket': ticket})
+    return JsonResponse(r.json(), status=r.status)
 
 @require_GET
 @require_token()
