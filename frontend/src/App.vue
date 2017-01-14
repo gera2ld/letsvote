@@ -68,5 +68,10 @@ body,
 
 .flex-auto {
   flex: auto;
+  overflow: auto;
+}
+
+.flex-col > .flex-auto {
+  height: 1px;
 }
 </style>

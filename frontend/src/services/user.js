@@ -12,6 +12,18 @@ function loadToken() {
 export function load() {
   store.user = loadCache(USER_KEY);
   loadToken();
+  restful.get('me')
+  .then(user => {
+    store.user = Object.assign({}, store.user, user);
+  }, err => {
+    if (err.status === 401) {
+      const {log_in} = err.data;
+      log_in && setTimeout(() => {
+        const url = `${location.protocol}//${location.host}/callback?next=${encodeURIComponent(location.pathname)}`;
+        location.href = `${log_in}?next=${encodeURIComponent(url)}`;
+      }, 3000);
+    }
+  });
 }
 
 export function dump(user) {
@@ -19,6 +31,9 @@ export function dump(user) {
     user.token = user.token || store.user && store.user.token;
   }
   store.user = user;
-  dumpCache(USER_KEY, user);
+  dumpCache(USER_KEY, ['id', 'token'].reduce((res, key) => {
+    res[key] = user[key];
+    return res;
+  }, {}));
   loadToken();
 }

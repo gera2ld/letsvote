@@ -16,7 +16,7 @@ export default {
     };
   },
   created() {
-    const {ticket} = this.$route.query;
+    const {ticket, next} = this.$route.query;
     if (!ticket) {
       this.loading = false;
       this.message = 'Oops, authorization failed!';
@@ -25,7 +25,11 @@ export default {
     restful.root.get('/authorize', {ticket})
     .then(data => {
       user.dump(data);
-      this.$router.replace('/');
+    }, err => {
+      console.error(err);
+    })
+    .then(() => {
+      this.$router.replace(next || '/');
     });
   },
 };

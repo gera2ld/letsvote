@@ -44,8 +44,12 @@ def require_token(allow_anonymous=False):
             if user is None and not allow_anonymous:
                 return JsonResponse({
                     'error': 'Invalid token',
+                    'log_in': settings.ARBITER_URL,
                 }, status=401)
             request.user_data = user or {}
             return handle(request, *k, **kw)
         return wrapped
     return wrapper
+
+def drop_empty(kw):
+    return dict((k, v) for k, v in kw.items() if v is not None)

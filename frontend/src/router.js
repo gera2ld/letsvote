@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import Main from 'components/Main';
 import Poll from 'components/Poll';
 import MyPolls from 'components/MyPolls';
 import PollCreate from 'components/PollCreate';
@@ -11,7 +10,7 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '/',
-    component: Main,
+    redirect: '/my/polls',
   },
   {
     path: '/my/polls',

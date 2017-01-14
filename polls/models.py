@@ -1,10 +1,11 @@
 from django.db import models
 
-def json_transformer(fields):
-    def as_json(model):
+def json_transformer(default_fields):
+    def as_json(model, extra_fields=()):
         result = {}
-        for field in fields:
-            result[field] = getattr(model, field)
+        for fields in default_fields, extra_fields:
+            for field in fields:
+                result[field] = getattr(model, field)
         return result
     return as_json
 
@@ -20,7 +21,7 @@ class Question(models.Model):
         return self.title
 
     as_json = json_transformer([
-        'title', 'desc', 'user_number',
+        'id', 'title', 'desc', 'user_number',
     ])
 
 class Choice(models.Model):
@@ -33,7 +34,7 @@ class Choice(models.Model):
         return self.title
 
     as_json = json_transformer([
-        'title', 'desc', 'votes',
+        'id', 'title', 'desc', 'votes',
     ])
 
 class UserQuestion(models.Model):

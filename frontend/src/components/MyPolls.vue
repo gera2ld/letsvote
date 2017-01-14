@@ -1,9 +1,12 @@
 <template>
   <div class="flex-auto">
-    <div class="card" v-for="poll in polls">
+    <div class="card mb-10" v-for="question in questions">
       <div class="card-header">
-        <h4 class="card-title" v-text="poll.title"></h4>
-        <p class="card-meta" v-text="poll.desc"></p>
+        <span class="float-right" v-text="`${question.user_number} votes`"></span>
+        <router-link :to="`/polls/${question.id}`">
+          <h4 class="card-title" v-text="question.title"></h4>
+        </router-link>
+        <p class="card-meta" v-text="question.desc"></p>
       </div>
     </div>
   </div>
@@ -12,22 +15,17 @@
 <script>
 import { My } from 'src/services/restful';
 
-function loadData() {
-  return My.Polls.get()
-  .then((res) => {
-    console.log(res);
-  });
-}
-
 export default {
   data() {
     return {
-      polls: [],
+      questions: [],
     };
   },
   created() {
-    loadData();
+    My.Polls.get()
+    .then(res => {
+      this.questions = res.data;
+    });
   },
-  prefetch: loadData,
 };
 </script>
