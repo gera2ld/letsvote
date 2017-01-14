@@ -1,5 +1,5 @@
 <template>
-  <form class="flex flex-col">
+  <form class="flex flex-col flex-auto">
     <div class="form-group">
       <input class="form-input" v-model="question.title" required placeholder="Question">
     </div>

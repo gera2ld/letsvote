@@ -9,14 +9,27 @@
         <router-link to="/my/polls" class="btn btn-link" active-class="active">My Polls</router-link>
         <router-link to="/polls/create" class="btn btn-link" active-class="active">Create Poll</router-link>
       </section>
+      <section class="navbar-section">
+        <figure class="avatar" v-if="store.user">
+          <img :src="store.user.avatar">
+        </figure>
+        <span class="hide-xs ml-5" v-text="store.user.nickname" v-if="store.user"></span>
+      </section>
     </header>
-    <router-view class="flex-auto"></router-view>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
+import {store} from 'src/services';
+
 export default {
   name: 'app',
+  data() {
+    return {
+      store,
+    };
+  },
 };
 </script>
 

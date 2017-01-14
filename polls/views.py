@@ -1,5 +1,7 @@
+import json
 from django.shortcuts import get_object_or_404
 from django.db.models import F
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 import requests
@@ -7,9 +9,9 @@ from .models import Question, Choice, UserChoice
 from .forms import PollForm, ChoiceForm, AnswerForm
 from .utils import require_token
 
-@require_POST
+@require_GET
 def authorize(request):
-    ticket = request.POST.get('ticket')
+    ticket = request.GET.get('ticket')
     if not ticket:
         return JsonResponse({
             'errors': {
@@ -17,13 +19,30 @@ def authorize(request):
             },
         }, status=400)
     url = settings.ARBITER_URL + '/api/token'
-    r = requests.post(url, params={'ticket': ticket})
-    return JsonResponse(r.json(), status=r.status)
+    r = requests.get(url, params={'ticket': ticket})
+    return JsonResponse(r.json(), status=r.status_code)
 
 @require_GET
 @require_token()
 def me(request):
     return JsonResponse(request.user_data)
+
+@require_GET
+@require_token()
+def my_polls(request):
+    # TODO pagination
+    questions = [
+        {
+            'id': id,
+            'title': title,
+            'desc': desc,
+        } for id, title, desc in Question.objects.filter(
+            owner_id=request.user_data['id'],
+        ).values_list('id', 'title', 'desc')
+    ]
+    return JsonResponse({
+        data: questions,
+    })
 
 @require_GET
 @require_token(allow_anonymous=True)

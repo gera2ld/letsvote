@@ -2,8 +2,9 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Main from 'components/Main';
 import Poll from 'components/Poll';
-import PollList from 'components/PollList';
+import MyPolls from 'components/MyPolls';
 import PollCreate from 'components/PollCreate';
+import Callback from 'components/Callback';
 
 Vue.use(VueRouter);
 
@@ -14,7 +15,7 @@ const routes = [
   },
   {
     path: '/my/polls',
-    component: PollList,
+    component: MyPolls,
   },
   {
     path: '/polls/create',
@@ -23,6 +24,10 @@ const routes = [
   {
     path: '/polls/:id',
     component: Poll,
+  },
+  {
+    path: '/callback',
+    component: Callback,
   },
 ];
 
