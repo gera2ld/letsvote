@@ -10,7 +10,7 @@ if UNIX_SOCKET is not None:
     from tornado.httpserver import HTTPServer
     from tornado.netutil import bind_unix_socket
     server = HTTPServer(application)
-    socket = bind_unix_socket(UNIX_SOCKET)
+    socket = bind_unix_socket(UNIX_SOCKET, mode=0o777)
     server.add_socket(socket)
 else:
     application.listen(PORT)
