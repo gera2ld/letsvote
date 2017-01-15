@@ -2,18 +2,19 @@
   <div id="app" class="container grid-960 flex flex-col">
     <header class="navbar">
       <section class="navbar-section">
-        <a href="/" class="navbar-brand mr-10">
+        <router-link to="/" class="navbar-brand mr-10">
           <img src="../static/vote.svg">
           <span class="hide-xs">Let's vote</span>
-        </a>
+        </router-link>
         <router-link to="/my/polls" class="btn btn-link" active-class="active">My Polls</router-link>
         <router-link to="/polls/create" class="btn btn-link" active-class="active">Create Poll</router-link>
       </section>
       <section class="navbar-section">
-        <figure class="avatar" v-if="store.user">
+        <figure class="avatar" v-if="store.user.uid">
           <img :src="store.user.avatar">
         </figure>
-        <span class="hide-xs ml-5" v-text="store.user.nickname" v-if="store.user"></span>
+        <span class="hide-xs ml-5" v-text="store.user.nickname" v-if="store.user.uid"></span>
+        <log-in v-if="!store.user.uid"></log-in>
       </section>
     </header>
     <router-view></router-view>
@@ -22,9 +23,13 @@
 
 <script>
 import {store} from 'src/services';
+import LogIn from 'components/LogIn';
 
 export default {
   name: 'app',
+  components: {
+    LogIn,
+  },
   data() {
     return {
       store,

@@ -4,19 +4,25 @@ import Poll from 'components/Poll';
 import MyPolls from 'components/MyPolls';
 import PollCreate from 'components/PollCreate';
 import Callback from 'components/Callback';
+import Portal from 'components/Portal';
 import {store, user} from 'src/services';
 
 Vue.use(VueRouter);
 
 const requireLogin = (to, from, next) => {
-  (store.user && store.user.token ? Promise.resolve() : user.retrieve())
-  .then(next);
+  user.ready().then(() => {
+    next(store.user.uid ? null : '/portal');
+  });
 };
 
 const routes = [
   {
     path: '/',
     redirect: '/my/polls',
+  },
+  {
+    path: '/portal',
+    component: Portal,
   },
   {
     path: '/my/polls',

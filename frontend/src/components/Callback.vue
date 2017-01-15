@@ -25,7 +25,6 @@ export default {
     restful.get('/authorize', {ticket})
     .then(data => {
       user.dump(data);
-      user.retrieve();
       this.$router.replace(next || '/');
     }, err => {
       console.error(err);
