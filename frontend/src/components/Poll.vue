@@ -5,13 +5,14 @@
       <h4 class="card-title" v-text="question.title"></h4>
       <p class="card-meta" v-text="question.desc"></p>
     </div>
-    <div class="card-body flex-auto" v-if="question.selected">
+    <div class="card-body flex-auto" v-if="question.selected || !store.user.uid">
       <div class="form-group" v-for="choice in question.choices">
         <div class="form-radio">
           <input type="radio" :value="choice.id" :checked="choice.checked">
           <i class="form-icon"></i> {{choice.title}}
         </div>
-        <div class="card-meta text-right" v-text="`${choice.votes} votes`"></div>
+        <p v-text="choice.desc"></p>
+        <div class="card-meta text-right" v-if="question.selected" v-text="`${choice.votes} votes`"></div>
       </div>
     </div>
     <form class="card-body flex-auto flex flex-col" @submit.prevent="onSubmit" v-else>
@@ -33,10 +34,12 @@
 
 <script>
 import { Polls } from 'src/services/restful';
+import { store } from 'src/services';
 
 export default {
   data() {
     return {
+      store,
       question: {
         title: 'Loading...',
         user_number: '?',
