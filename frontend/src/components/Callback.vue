@@ -22,9 +22,10 @@ export default {
       this.message = 'Oops, authorization failed!';
       return;
     }
-    restful.root.get('/authorize', {ticket})
+    restful.get('/authorize', {ticket})
     .then(data => {
       user.dump(data);
+      user.retrieve();
       this.$router.replace(next || '/');
     }, err => {
       console.error(err);

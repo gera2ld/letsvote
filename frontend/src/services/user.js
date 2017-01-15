@@ -9,14 +9,13 @@ function loadToken() {
   restful.options.headers['Authorization'] = token ? `token ${token}` : null;
 }
 
-export function load() {
-  store.user = loadCache(USER_KEY);
-  loadToken();
-  restful.get('me')
+export function retrieve() {
+  return restful.get('me')
   .then(user => {
     store.user = Object.assign({}, store.user, user);
   }, err => {
     if (err.status === 401) {
+      dump();
       const {log_in} = err.data;
       log_in && setTimeout(() => {
         const url = `${location.protocol}//${location.host}/callback?next=${encodeURIComponent(location.pathname)}`;
@@ -26,12 +25,18 @@ export function load() {
   });
 }
 
+export function load() {
+  store.user = loadCache(USER_KEY);
+  loadToken();
+  store.user && store.user.token && retrieve();
+}
+
 export function dump(user) {
   if (user) {
     user.token = user.token || store.user && store.user.token;
   }
   store.user = user;
-  dumpCache(USER_KEY, ['id', 'token'].reduce((res, key) => {
+  dumpCache(USER_KEY, user && ['id', 'token'].reduce((res, key) => {
     res[key] = user[key];
     return res;
   }, {}));

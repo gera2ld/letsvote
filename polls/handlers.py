@@ -1,6 +1,6 @@
 import json
 from tornado.web import RequestHandler
-from tornado.httpclient import AsyncHTTPClient
+from tornado.httpclient import AsyncHTTPClient, HTTPError
 from tornado.httputil import url_concat
 from .utils import require_token, pick_keys
 from .models import *
@@ -29,10 +29,15 @@ class AuthorizeHandler(RequestHandler):
             {'ticket': ticket}
         )
         client = AsyncHTTPClient()
-        response = await client.fetch(url)
-        data = json.loads(response.body)
-        self.set_status(response.code)
-        self.write(data)
+        try:
+            response = await client.fetch(url)
+        except HTTPError as e:
+            self.set_status(e.response.code)
+            self.write(str(e))
+        else:
+            data = json.loads(response.body)
+            self.set_status(response.code)
+            self.write(data)
 
 @handler('/me')
 class UserHandler(RequestHandler):
