@@ -1,55 +1,50 @@
+import json
 from functools import wraps
-from django.conf import settings
-from django.http import JsonResponse
-from django.core.cache import cache
-import requests
+from tornado.httpclient import AsyncHTTPClient, HTTPError
 
-def cache_result(get_cache_key, timeout=30):
-    def wrapper(handle):
-        @wraps(handle)
-        def wrapped(*k, **kw):
-            cache_key = get_cache_key(*k, **kw)
-            result = cache.get(cache_key)
-            if result is None:
-                result = handle(*k, **kw)
-                if result is not None:
-                    cache.set(cache_key, result, timeout)
-            return result
-        return wrapped
-    return wrapper
-
-@cache_result(lambda a: a.replace(' ', ':'))
-def load_user_from_token(authorization):
-    url = settings.ARBITER_URL + '/api/user'
+async def load_user_from_token(application, authorization):
+    url = application.settings['ARBITER_URL'] + '/api/user'
     headers = {
         'Authorization': authorization,
     }
-    r = requests.get(url, headers=headers)
-    if 100 < r.status_code < 300:
-        return r.json()
+    client = AsyncHTTPClient()
+    try:
+        res = await client.fetch(url, headers=headers)
+        return json.loads(res.body)
+    except HTTPError as e:
+        if e.code >= 500: raise e
 
 def require_token(allow_anonymous=False):
     def wrapper(handle):
         @wraps(handle)
-        def wrapped(request, *k, **kw):
-            authorization = request.META.get('HTTP_AUTHORIZATION')
+        async def wrapped(self, *k, **kw):
+            authorization = self.request.headers.get('AUTHORIZATION')
             user = None
             if authorization:
                 try:
-                    user = load_user_from_token(authorization)
+                    user = await load_user_from_token(self.application, authorization)
                 except Exception as exc:
-                    return JsonResponse({
+                    self.set_status(500)
+                    self.write({
                         'error': repr(exc),
-                    }, status=500)
+                    })
+                    return
             if user is None and not allow_anonymous:
-                return JsonResponse({
+                self.set_status(401)
+                self.write({
                     'error': 'Invalid token',
-                    'log_in': settings.ARBITER_URL,
-                }, status=401)
-            request.user_data = user or {}
-            return handle(request, *k, **kw)
+                    'log_in': self.application.settings['ARBITER_URL'],
+                })
+                return
+            self.user = user or {}
+            return handle(self, *k, **kw)
         return wrapped
     return wrapper
 
-def drop_empty(kw):
-    return dict((k, v) for k, v in kw.items() if v is not None)
+def pick_keys(data, keys):
+    res = {}
+    for k in keys:
+        v = data.get(k)
+        if v is not None:
+            res[k] = v
+    return res

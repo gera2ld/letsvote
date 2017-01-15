@@ -1,6 +1,5 @@
 __pycache__
 python
-/apps/env.py
-/static
+/polls/env.py
 /data/*
 !.gitkeep

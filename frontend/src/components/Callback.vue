@@ -25,11 +25,9 @@ export default {
     restful.root.get('/authorize', {ticket})
     .then(data => {
       user.dump(data);
+      this.$router.replace(next || '/');
     }, err => {
       console.error(err);
-    })
-    .then(() => {
-      this.$router.replace(next || '/');
     });
   },
 };

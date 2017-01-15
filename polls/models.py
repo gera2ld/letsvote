@@ -1,4 +1,17 @@
-from django.db import models
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+from .settings import DB_ENGINE
+
+__all__ = [
+    'Session',
+    'Question', 'Choice', 'UserQuestion', 'UserChoice',
+]
+
+engine = create_engine(DB_ENGINE, echo=True)
+Session = sessionmaker(bind=engine)
+Base = declarative_base()
 
 def json_transformer(default_fields):
     def as_json(model, extra_fields=()):
@@ -9,13 +22,15 @@ def json_transformer(default_fields):
         return result
     return as_json
 
-class Question(models.Model):
-    title = models.CharField(max_length=200)
-    desc = models.TextField(blank=True)
-    owner_id = models.CharField(max_length=64)
-    user_number = models.IntegerField(default=0)
-    votes_lb = models.IntegerField(default=1)
-    votes_ub = models.IntegerField(default=1)
+class Question(Base):
+    __tablename__ = 'question'
+    id = Column(Integer, primary_key=True)
+    title = Column(String(200))
+    desc = Column(Text)
+    owner_id = Column(String(64))
+    user_number = Column(Integer, default=0)
+    votes_lb = Column(Integer, default=1)
+    votes_ub = Column(Integer, default=1)
 
     def __str__(self):
         return self.title
@@ -24,11 +39,13 @@ class Question(models.Model):
         'id', 'title', 'desc', 'user_number',
     ])
 
-class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    desc = models.TextField(blank=True)
-    votes = models.IntegerField(default=0)
+class Choice(Base):
+    __tablename__ = 'choice'
+    id = Column(Integer, primary_key=True)
+    question_id = Column(ForeignKey('question.id', ondelete='CASCADE'))
+    title = Column(String(200))
+    desc = Column(Text)
+    votes = Column(Integer, default=0)
 
     def __str__(self):
         return self.title
@@ -37,16 +54,26 @@ class Choice(models.Model):
         'id', 'title', 'desc', 'votes',
     ])
 
-class UserQuestion(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    user_id = models.CharField(max_length=64)
+class UserQuestion(Base):
+    __tablename__ = 'userquestion'
+    id = Column(Integer, primary_key=True)
+    question_id = Column(ForeignKey('question.id', ondelete='CASCADE'))
+    user_id = Column(String(64))
 
     def __str__(self):
-        return self.user.userinfo.nickname + '@' + self.question.title
+        return self.user_id + '@' + self.question.title
 
-class UserChoice(models.Model):
-    choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
-    userquestion = models.ForeignKey(UserQuestion, on_delete=models.CASCADE)
+class UserChoice(Base):
+    __tablename__ = 'userchoice'
+    id = Column(Integer, primary_key=True)
+    userquestion_id = Column(ForeignKey('userquestion.id', ondelete='CASCADE'))
+    choice_id = Column(ForeignKey('choice.id', ondelete='CASCADE'))
 
     def __str__(self):
-        return self.userquestion.user.userinfo.nickname + '@' + self.choice.title
+        return self.userquestion.user_id + '@' + self.choice.title
+
+Choice.question = relationship('Question', backref='choices')
+UserQuestion.question = relationship('Question', backref='userquestions')
+UserQuestion.userchoices = relationship('UserChoice')
+UserChoice.userquestion = relationship('UserQuestion')
+UserChoice.choice = relationship('Choice')

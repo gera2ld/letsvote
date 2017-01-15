@@ -65,7 +65,7 @@ export default {
       const {id} = this.$route.params;
       const poll_values = [this.picked];
       this.loading = true;
-      Polls.model(id).post('vote', {poll_values})
+      Polls.model(id).post(null, {poll_values})
       .then(res => {
         this.question = res.data;
         this.loading = false;

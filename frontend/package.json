@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "node build/dev-server.js",
     "build": "node build/build.js",
+    "predeploy": "npm run build",
+    "deploy": "rsync -r dist/ -v --delete gerald@gerald:~/Git/letsvote/frontend/dist/",
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
