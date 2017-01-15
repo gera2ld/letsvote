@@ -21,4 +21,6 @@ def as_dict():
 SECRET_KEY = environ['SECRET_KEY']
 ARBITER_URL = environ['ARBITER_URL']
 DB_ENGINE = environ.get('DB_ENGINE', 'sqlite:///:memory:')
+
+UNIX_SOCKET = environ.get('UNIX_SOCKET')
 PORT = environ.get('PORT', 3000)
