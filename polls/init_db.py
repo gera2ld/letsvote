@@ -1,3 +1,3 @@
-from .models import Base, engine
+from .models import init
 
-Base.metadata.create_all(engine)
+init()

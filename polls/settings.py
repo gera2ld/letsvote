@@ -18,9 +18,10 @@ def as_dict():
             kw[key] = value
     return kw
 
+PYTHON_ENV = environ.get('PYTHON_ENV')
 SECRET_KEY = environ['SECRET_KEY']
 ARBITER_URL = environ['ARBITER_URL']
-DB_ENGINE = environ.get('DB_ENGINE', 'sqlite:///:memory:')
+DB_ENGINE = environ.get('DB_ENGINE')
 
 UNIX_SOCKET = environ.get('UNIX_SOCKET')
 PORT = environ.get('PORT', 3000)

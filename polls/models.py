@@ -2,16 +2,22 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
-from .settings import DB_ENGINE
+from .settings import DB_ENGINE, PYTHON_ENV
 
 __all__ = [
     'session',
     'Question', 'Choice', 'UserQuestion', 'UserChoice',
 ]
 
-engine = create_engine(DB_ENGINE, echo=True)
-Session = sessionmaker(bind=engine)
+def init():
+    Base.metadata.create_all(engine)
+
+engine = create_engine(DB_ENGINE or 'sqlite:///:memory:', echo=PYTHON_ENV != 'production')
 Base = declarative_base()
+
+if not DB_ENGINE: init()
+
+Session = sessionmaker(bind=engine)
 session = Session()
 
 def json_transformer(default_fields):
