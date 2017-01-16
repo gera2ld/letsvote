@@ -5,13 +5,14 @@ from sqlalchemy.orm import sessionmaker, relationship
 from .settings import DB_ENGINE
 
 __all__ = [
-    'Session',
+    'session',
     'Question', 'Choice', 'UserQuestion', 'UserChoice',
 ]
 
 engine = create_engine(DB_ENGINE, echo=True)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
+session = Session()
 
 def json_transformer(default_fields):
     def as_json(model, extra_fields=()):

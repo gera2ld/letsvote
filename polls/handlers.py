@@ -56,7 +56,6 @@ class MyPollsHandler(RequestHandler):
             'desc',
             'user_number',
         ]
-        session = Session()
         items = session.query(Question).filter_by(
             owner_id=self.user['uid'],
         )
@@ -72,7 +71,6 @@ class MyPollsHandler(RequestHandler):
 class DetailHandler(RequestHandler):
     @require_token(allow_anonymous=True)
     def get(self, poll_id):
-        session = Session()
         question = session.query(Question).filter_by(
             id=poll_id,
         ).one()
@@ -96,7 +94,6 @@ class DetailHandler(RequestHandler):
 
     @require_token()
     def post(self, poll_id):
-        session = Session()
         question = session.query(Question).filter_by(
             id=poll_id,
         ).one()
@@ -138,7 +135,6 @@ class DetailHandler(RequestHandler):
 class CreateHandler(RequestHandler):
     @require_token()
     def post(self):
-        session = Session()
         data = json.loads(self.request.body)
         data_question = pick_keys(data['question'], ('title', 'desc', 'votes_lb', 'votes_ub'))
         data_choices = [pick_keys(choice, ('title', 'desc')) for choice in data['choices']]
