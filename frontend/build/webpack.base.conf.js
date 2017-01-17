@@ -58,10 +58,10 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel',
-        // include: [
-        //   path.join(projectRoot, 'src')
-        // ],
-        exclude: /node_modules\/(?!restful-fetch)/
+        include: [
+          path.join(projectRoot, 'src')
+        ],
+        exclude: /node_modules/
       },
       {
         test: /\.json$/,

@@ -12,7 +12,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
-    "restful-fetch": "^0.6.1",
+    "restful-fetch": "^0.6.2",
     "vue": "^2.1.0",
     "vue-router": "^2.1.1"
   },
